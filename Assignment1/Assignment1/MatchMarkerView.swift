@@ -39,8 +39,21 @@ struct MatchMarkerView: View {
     }
 }
 
+struct MatchMarkerPreview: View {
+    let dummyPegCount: Int
+    let matchs: [match] = [.exact, .inexact, .nomatch, .exact]
+    var body: some View {
+        HStack {
+            ForEach(0..<dummyPegCount, id: \.self) { _ in
+                Circle()
+            }
+            MatchMarkerView(matchs: matchs)
+        }
+        .padding()
+    }
+}
 
 
 #Preview {
-    MatchMarkerView(matchs: [.exact, .inexact, .nomatch, .exact])
+    MatchMarkerPreview(dummyPegCount: 4)
 }

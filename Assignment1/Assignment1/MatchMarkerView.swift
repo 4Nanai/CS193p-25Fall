@@ -16,15 +16,20 @@ enum match {
 
 struct MatchMarkerView: View {
     let matchs: [match]
+    var col: Int {
+        (matchs.count + 1) / 2
+    }
     var body: some View {
         VStack {
             HStack {
-                DrawMarker(peg: 0)
-                DrawMarker(peg: 1)
+                ForEach(0..<col, id: \.self) {peg in
+                    DrawMarker(peg: peg)
+                }
             }
             HStack {
-                DrawMarker(peg: 2)
-                DrawMarker(peg: 3)
+                ForEach(col..<col*2, id: \.self) {peg in
+                    DrawMarker(peg: peg)
+                }
             }
         }
     }
@@ -40,7 +45,7 @@ struct MatchMarkerView: View {
 }
 
 struct MatchMarkerPreview: View {
-    let matchs: [match] = [.exact, .inexact, .nomatch, .exact]
+    let matchs: [match]
     var body: some View {
         HStack {
             ForEach(0..<matchs.count, id: \.self) { _ in
@@ -54,5 +59,5 @@ struct MatchMarkerPreview: View {
 
 
 #Preview {
-    MatchMarkerPreview()
+    MatchMarkerPreview(matchs: [.exact, .inexact, .nomatch, .exact, .exact, .inexact])
 }

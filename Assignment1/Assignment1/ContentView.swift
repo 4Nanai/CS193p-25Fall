@@ -20,8 +20,8 @@ struct CodebreakerView: View {
     
     func pegs(colors: [Color]) -> some View {
         HStack {
-            ForEach(colors.indices, id:\.self) { index in
-                Circle().fill(colors[index])
+            ForEach(colors.indices, id:\.self) {
+                Circle().fill(colors[$0])
             }
             MatchMarkerView(matchs: [.exact, .inexact, .nomatch, .exact])
         }

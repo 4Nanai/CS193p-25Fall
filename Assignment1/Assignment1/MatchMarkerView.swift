@@ -59,5 +59,10 @@ struct MatchMarkerPreview: View {
 
 
 #Preview {
-    MatchMarkerPreview(matchs: [.exact, .inexact, .nomatch, .exact, .exact, .inexact])
+    VStack {
+        MatchMarkerPreview(matchs: [.exact, .inexact, .nomatch, .exact, .exact, .inexact])
+        MatchMarkerPreview(matchs: [.exact, .exact, .exact, .exact])
+        MatchMarkerPreview(matchs: [.inexact, .inexact, .inexact])
+        MatchMarkerPreview(matchs: [.nomatch, .nomatch, .nomatch, .nomatch, .nomatch])
+    }
 }

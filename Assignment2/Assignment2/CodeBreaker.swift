@@ -8,20 +8,34 @@
 import SwiftUI
 
 struct CodeBreaker {
-    let masterCode: Code
-    let guess: Code
-    let attempts: [Code]
+    let masterCode = Code(kind: .master)
+    var guess = Code(kind: .guess)
+    let attempts: [Code] = []
     let pegChoices: [Peg]
+    
+    mutating func changeGuessPeg(at index: Int) {
+        let currentPeg = guess.pegs[index]
+        if let currentIndex = pegChoices.firstIndex(of: currentPeg) {
+            let nextPeg = pegChoices[(currentIndex + 1) % pegChoices.count]
+            guess.pegs[index] = nextPeg
+        }
+        else {
+            guess.pegs[index] = pegChoices.first ?? Code.missing
+        }
+    }
 }
 
 struct Code {
-    let pegs: [Peg]
+    var pegs: [Peg] = [.red, .blue, .green, .yellow]
+    let kind: Kind
+    
+    static var missing: Peg = .clear
     
     enum Kind {
         case master
         case guess
         case attempt
-        case missing
+        case unknown
     }
 }
 

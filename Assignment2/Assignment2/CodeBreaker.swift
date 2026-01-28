@@ -31,13 +31,24 @@ struct CodeBreaker {
     }
     
     mutating func attemptGuess() {
+        // Ignore attempt with no pegs chosen
+        if guess.pegs == Array(repeating: Code.missing, count: guess.pegs.count) {
+            return
+        }
+        
         var newAttempt = guess
         newAttempt.kind = .attempt(guess.match(against: masterCode))
+        
+        // Ignore attempt already tried
+        if (attempts.firstIndex(of: newAttempt) != nil) {
+            return
+        }
+        
         attempts.append(newAttempt)
     }
 }
 
-struct Code {
+struct Code: Equatable {
     var pegs: [Peg] = Array(repeating: Code.missing, count: 4)
     var kind: Kind
     

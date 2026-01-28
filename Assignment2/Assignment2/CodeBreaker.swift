@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct CodeBreaker {
-    let masterCode = Code(kind: .master)
+    var masterCode = Code(kind: .master)
     var guess = Code(kind: .guess)
-    let attempts: [Code] = []
+    var attempts: [Code] = []
     let pegChoices: [Peg]
     
     mutating func changeGuessPeg(at index: Int) {
@@ -23,11 +23,17 @@ struct CodeBreaker {
             guess.pegs[index] = pegChoices.first ?? Code.missing
         }
     }
+    
+    mutating func attemptGuess() {
+        var newAttempt = guess
+        newAttempt.kind = .attempt
+        attempts.append(newAttempt)
+    }
 }
 
 struct Code {
     var pegs: [Peg] = [.red, .blue, .green, .yellow]
-    let kind: Kind
+    var kind: Kind
     
     static var missing: Peg = .clear
     

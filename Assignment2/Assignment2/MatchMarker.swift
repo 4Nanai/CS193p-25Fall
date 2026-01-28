@@ -8,16 +8,16 @@
 import SwiftUI
 
 
-enum match {
+enum Match {
     case exact
     case inexact
     case nomatch
 }
 
 struct MatchMarkerView: View {
-    let matchs: [match]
+    let matchs: [Match]
     var col: Int {
-        (matchs.count + 1) / 2
+        max(2, (matchs.count + 1) / 2)
     }
     var body: some View {
         VStack {
@@ -45,7 +45,7 @@ struct MatchMarkerView: View {
 }
 
 struct MatchMarkerPreview: View {
-    let matchs: [match]
+    let matchs: [Match]
     var body: some View {
         HStack {
             ForEach(0..<matchs.count, id: \.self) { _ in

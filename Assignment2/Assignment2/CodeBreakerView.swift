@@ -13,15 +13,24 @@ struct CodeBreakerView: View {
     var body: some View {
         VStack {
             view(for: game.masterCode)
-            view(for: game.guess)
-            ForEach(game.attempts.indices.reversed(), id: \.self) { index in
-                view(for: game.attempts[index])
-            }
-            Button("Guess") {
-                game.attemptGuess()
+            ScrollView {
+                view(for: game.guess)
+                ForEach(game.attempts.indices.reversed(), id: \.self) { index in
+                    view(for: game.attempts[index])
+                }
             }
         }
         .padding()
+    }
+    
+    var guessButton: some View {
+        Button("Guess") {
+            withAnimation {
+                game.attemptGuess()
+            }
+        }
+        .font(.system(size: 80))
+        .minimumScaleFactor(0.1)
     }
     
     func view(for code: Code) -> some View {
@@ -29,14 +38,30 @@ struct CodeBreakerView: View {
             ForEach(code.pegs.indices, id:\.self) { index in
                 Circle()
                     .fill(code.pegs[index])
+                    .overlay {
+                        if code.pegs[index] == Code.missing {
+                            Circle()
+                                .strokeBorder(.gray, lineWidth: 2)
+                                .aspectRatio(1, contentMode: .fit)
+                        }
+                    }
+                    .contentShape(Circle())
                     .onTapGesture {
                         // Handle color change
                         if code.kind == .guess {
-                            game.changeGuessPeg(at: index)
+                            withAnimation() {
+                                game.changeGuessPeg(at: index)
+                            }
+                            
                         }
                     }
             }
-            MatchMarkerView(matchs: [.exact, .inexact, .nomatch, .exact])
+            MatchMarkerView(matchs: code.matchs)
+                .overlay {
+                    if code.kind == .guess {
+                        guessButton
+                    }
+                }
         }
     }
 }

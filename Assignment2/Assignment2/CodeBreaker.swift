@@ -13,6 +13,12 @@ struct CodeBreaker {
     var attempts: [Code] = []
     let pegChoices: [Peg]
     
+    init(pegChoices: [Peg]) {
+        self.pegChoices = pegChoices
+        masterCode.randomize(from: pegChoices)
+        print(masterCode)
+    }
+    
     mutating func changeGuessPeg(at index: Int) {
         let currentPeg = guess.pegs[index]
         if let currentIndex = pegChoices.firstIndex(of: currentPeg) {
@@ -26,22 +32,57 @@ struct CodeBreaker {
     
     mutating func attemptGuess() {
         var newAttempt = guess
-        newAttempt.kind = .attempt
+        newAttempt.kind = .attempt(guess.match(against: masterCode))
         attempts.append(newAttempt)
     }
 }
 
 struct Code {
-    var pegs: [Peg] = [.red, .blue, .green, .yellow]
+    var pegs: [Peg] = Array(repeating: Code.missing, count: 4)
     var kind: Kind
     
     static var missing: Peg = .clear
     
-    enum Kind {
+    enum Kind: Equatable  {
         case master
         case guess
-        case attempt
+        case attempt([Match])
         case unknown
+    }
+    
+    mutating func randomize(from pegChoice: [Peg]) {
+        for index in pegChoice.indices {
+            pegs[index] = pegChoice.randomElement() ?? Code.missing
+        }
+    }
+    
+    var matchs: [Match] {
+        switch kind {
+        case .attempt(let matchs): return matchs
+        default: return []
+        }
+    }
+    
+    func match(against masterCode: Code) -> [Match] {
+        var results = Array<Match>(repeating: .nomatch, count: pegs.count)
+        var masterPegs = masterCode.pegs
+        for index in pegs.indices.reversed() {
+            if masterPegs.count > index, masterPegs[index] == pegs[index] {
+                results[index] = .exact
+                masterPegs.remove(at: index)
+            }
+        }
+        
+        for index in pegs.indices {
+            if results[index] != .exact {
+                if let matchIndex = masterPegs.firstIndex(of: pegs[index]) {
+                    results[index] = .inexact
+                    masterPegs.remove(at: matchIndex)
+                }
+            }
+        }
+        
+        return results
     }
 }
 

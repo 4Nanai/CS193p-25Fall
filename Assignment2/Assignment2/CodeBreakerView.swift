@@ -19,6 +19,16 @@ struct CodeBreakerView: View {
                     view(for: game.attempts[index])
                 }
             }
+            Button {
+                withAnimation{
+                    game.restartGame()
+                }
+            } label: {
+                Text("Restart")
+                    .padding()
+                    .font(.title)
+            }
+            .buttonStyle(.glassProminent)
         }
         .padding()
     }

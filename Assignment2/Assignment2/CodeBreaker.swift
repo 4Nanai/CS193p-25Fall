@@ -46,6 +46,12 @@ struct CodeBreaker {
         
         attempts.append(newAttempt)
     }
+    
+    mutating func restartGame() {
+        masterCode.randomize(from: pegChoices)
+        guess = Code(kind: .guess)
+        attempts = []
+    }
 }
 
 struct Code: Equatable {

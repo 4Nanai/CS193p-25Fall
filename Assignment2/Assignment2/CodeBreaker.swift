@@ -8,13 +8,20 @@
 import SwiftUI
 
 struct CodeBreaker {
-    var masterCode = Code(kind: .master)
-    var guess = Code(kind: .guess)
+    var masterCode: Code
+    var guess: Code
     var attempts: [Code] = []
     let pegChoices: [Peg]
     
+    // Configurable peg count
+    var pegCount: Int
+    
     init(pegChoices: [Peg]) {
         self.pegChoices = pegChoices
+        // Set pegCount based on the number of pegChoices
+        self.pegCount = pegChoices.count
+        self.masterCode = Code(kind: .master, count: self.pegCount)
+        self.guess = Code(kind: .guess, count: self.pegCount)
         masterCode.randomize(from: pegChoices)
         print(masterCode)
     }
@@ -37,7 +44,7 @@ struct CodeBreaker {
         }
         
         var newAttempt = guess
-        newAttempt.kind = .attempt(guess.match(against: masterCode))
+        newAttempt.kind = Code.Kind.attempt(guess.match(against: masterCode))
         
         // Ignore attempt already tried
         if (attempts.firstIndex(of: newAttempt) != nil) {
@@ -49,7 +56,7 @@ struct CodeBreaker {
     
     mutating func restartGame() {
         masterCode.randomize(from: pegChoices)
-        guess = Code(kind: .guess)
+        guess = Code(kind: .guess, count: pegCount)
         attempts = []
     }
 }
@@ -57,6 +64,11 @@ struct CodeBreaker {
 struct Code: Equatable {
     var pegs: [Peg] = Array(repeating: Code.missing, count: 4)
     var kind: Kind
+    
+    init(kind: Kind, count: Int) {
+        self.pegs = Array(repeating: Code.missing, count: count)
+        self.kind = kind
+    }
     
     static var missing: Peg = .clear
     

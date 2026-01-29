@@ -8,7 +8,9 @@
 import SwiftUI
 
 struct CodeBreakerView: View {
-    @State var game = CodeBreaker(pegChoices: [.red, .blue, .green, .yellow])
+    @State var game = CodeBreaker(
+        pegChoices: [.red, .blue, .green, .yellow, .gray]
+    )
     
     var body: some View {
         VStack {
@@ -19,16 +21,12 @@ struct CodeBreakerView: View {
                     view(for: game.attempts[index])
                 }
             }
-            Button {
-                withAnimation{
-                    game.restartGame()
+            .overlay {
+                VStack {
+                    Spacer()
+                    restartButton
                 }
-            } label: {
-                Text("Restart")
-                    .padding()
-                    .font(.title)
             }
-            .buttonStyle(.glassProminent)
         }
         .padding()
     }
@@ -41,6 +39,19 @@ struct CodeBreakerView: View {
         }
         .font(.system(size: 80))
         .minimumScaleFactor(0.1)
+    }
+    
+    var restartButton: some View {
+        Button {
+            withAnimation{
+                game.restartGame()
+            }
+        } label: {
+            Text("Restart")
+                .padding()
+                .font(.title)
+        }
+        .buttonStyle(.glassProminent)
     }
     
     func view(for code: Code) -> some View {

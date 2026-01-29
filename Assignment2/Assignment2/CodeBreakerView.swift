@@ -27,11 +27,12 @@ struct CodeBreakerView: View {
             .emoji("🙈")
         ],
         pegCount: 5,
-        mode: .emoji
+        mode: .face
     )
     
     var body: some View {
         VStack {
+            title.font(.title)
             view(for: game.masterCode)
             ScrollView {
                 view(for: game.guess)
@@ -47,6 +48,14 @@ struct CodeBreakerView: View {
             }
         }
         .padding()
+    }
+    
+    var title: some View {
+        switch game.gameMode {
+        case .color: Text("Color Mode")
+        case .earth: Text("Earth Mode")
+        case .face: Text("Face Mode")
+        }
     }
     
     var guessButton: some View {

@@ -13,10 +13,12 @@ struct CodeBreaker {
     var attempts: [Code] = []
     var pegChoices: [Peg]
     
+    var gameMode: GameMode
+    
     let initMode: GameMode
     let initSet: [Peg]
     
-    static let emojiSet: [Peg] = [
+    static let faceTheme: [Peg] = [
         .emoji("😑"),
         .emoji("😁"),
         .emoji("😉"),
@@ -24,13 +26,22 @@ struct CodeBreaker {
         .emoji("😅"),
         .emoji("😇")
     ]
-    static let colorSet: [Peg] = [
+    static let colorTheme: [Peg] = [
         .color("red"),
         .color("blue"),
         .color("yellow"),
         .color("green"),
         .color("purple"),
         .color("orange")
+    ]
+    
+    static let earthTheme: [Peg] = [
+        .emoji("🐶"),
+        .emoji("🐱"),
+        .emoji("🐭"),
+        .emoji("🐹"),
+        .emoji("🐰"),
+        .emoji("🦊"),
     ]
     
     // Configurable peg count
@@ -42,6 +53,7 @@ struct CodeBreaker {
         // Init game state
         self.initSet = pegChoices
         self.initMode = gameMode
+        self.gameMode = gameMode
         
         // Configurable pegCount
         self.pegCount = pegCount
@@ -54,7 +66,7 @@ struct CodeBreaker {
     init() {
         let gameMode = GameMode.random()
         self.init(
-            pegChoices: gameMode == .color ? CodeBreaker.colorSet : CodeBreaker.emojiSet,
+            pegChoices: gameMode == .color ? CodeBreaker.colorTheme : CodeBreaker.faceTheme,
             pegCount: Int.random(in: 3...6),
             mode: gameMode
         )
@@ -91,11 +103,18 @@ struct CodeBreaker {
     
     mutating func restartGame() {
         let randomCount = Int.random(in: 3...6)
-        let nextGameMode = GameMode.random()
-        if nextGameMode == self.initMode {
+        self.gameMode = self.gameMode.nextGame()
+        if self.gameMode == self.initMode {
             self.pegChoices = self.initSet
         } else {
-            self.pegChoices = nextGameMode == .emoji ? CodeBreaker.emojiSet : CodeBreaker.colorSet
+            switch self.gameMode {
+            case .color:
+                self.pegChoices = CodeBreaker.colorTheme
+            case .face:
+                self.pegChoices = CodeBreaker.faceTheme
+            case .earth:
+                self.pegChoices = CodeBreaker.earthTheme
+            }
         }
             
         self.masterCode = Code(kind: .master, count: randomCount)
@@ -174,15 +193,18 @@ enum Peg: Equatable {
     }
 }
 
-enum GameMode {
+enum GameMode: CaseIterable {
     case color
-    case emoji
+    case face
+    case earth
     
     static func random() -> GameMode {
-        if Bool.random() {
-            return .emoji
-        } else {
-            return .color
-        }
+        GameMode.allCases.randomElement() ?? .face
+    }
+    
+    func nextGame() -> GameMode {
+        GameMode.allCases.filter { game in
+            game != self
+        }.randomElement() ?? self
     }
 }

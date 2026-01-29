@@ -9,7 +9,25 @@ import SwiftUI
 
 struct CodeBreakerView: View {
     @State var game = CodeBreaker(
-        pegChoices: [.red, .blue, .green, .yellow, .gray]
+//        pegChoices: [
+//            .color("red"),
+//            .color("blue"),
+//            .color("green"),
+//            .color("yellow"),
+//            .color("orange")
+//        ],
+//        pegCount: 5,
+//        mode: .color
+        pegChoices: [
+            .emoji("😇"),
+            .emoji("😭"),
+            .emoji("😀"),
+            .emoji("😍"),
+            .emoji("😊"),
+            .emoji("🙈")
+        ],
+        pegCount: 5,
+        mode: .emoji
     )
     
     var body: some View {
@@ -58,12 +76,20 @@ struct CodeBreakerView: View {
         HStack {
             ForEach(code.pegs.indices, id:\.self) { index in
                 Circle()
-                    .fill(code.pegs[index])
+                    .fill(.clear)
                     .overlay {
-                        if code.pegs[index] == Code.missing {
+                        switch code.pegs[index] {
+                        case .clear:
                             Circle()
                                 .strokeBorder(.gray, lineWidth: 2)
                                 .aspectRatio(1, contentMode: .fit)
+                        case .color(let name):
+                            Circle()
+                                .fill(name.toColor)
+                        case .emoji(let text):
+                            Text(text)
+                                .font(.system(size: 120))
+                                .minimumScaleFactor(9/120)
                         }
                     }
                     .contentShape(Circle())
@@ -87,6 +113,20 @@ struct CodeBreakerView: View {
     }
 }
 
+extension String {
+    var toColor: Color {
+        switch self {
+        case "red": return .red
+        case "blue": return .blue
+        case "yellow": return .yellow
+        case "green": return .green
+        case "gray": return .gray
+        case "orange": return .orange
+        case "purple": return .purple
+        default: return .gray
+        }
+    }
+}
 
 #Preview {
     CodeBreakerView()

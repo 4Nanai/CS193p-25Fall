@@ -5,19 +5,44 @@
 //  Created by Chitose on 1/27/26.
 //
 
-import SwiftUI
+import Foundation
 
 struct CodeBreaker {
     var masterCode: Code
     var guess: Code
     var attempts: [Code] = []
-    let pegChoices: [Peg]
+    var pegChoices: [Peg]
+    
+    let initMode: GameMode
+    let initSet: [Peg]
+    
+    static let emojiSet: [Peg] = [
+        .emoji("😑"),
+        .emoji("😁"),
+        .emoji("😉"),
+        .emoji("😩"),
+        .emoji("😅"),
+        .emoji("😇")
+    ]
+    static let colorSet: [Peg] = [
+        .color("red"),
+        .color("blue"),
+        .color("yellow"),
+        .color("green"),
+        .color("purple"),
+        .color("orange")
+    ]
     
     // Configurable peg count
     var pegCount: Int
     
-    init(pegChoices: [Peg], pegCount: Int) {
+    init(pegChoices: [Peg], pegCount: Int, mode gameMode: GameMode) {
         self.pegChoices = pegChoices
+        
+        // Init game state
+        self.initSet = pegChoices
+        self.initMode = gameMode
+        
         // Configurable pegCount
         self.pegCount = pegCount
         self.masterCode = Code(kind: .master, count: pegCount)
@@ -26,8 +51,13 @@ struct CodeBreaker {
         print(masterCode)
     }
     
-    init(pegChoices: [Peg]) {
-        self.init(pegChoices: pegChoices, pegCount: Int.random(in: 3...6))
+    init() {
+        let gameMode = GameMode.random()
+        self.init(
+            pegChoices: gameMode == .color ? CodeBreaker.colorSet : CodeBreaker.emojiSet,
+            pegCount: Int.random(in: 3...6),
+            mode: gameMode
+        )
     }
     
     mutating func changeGuessPeg(at index: Int) {
@@ -35,6 +65,7 @@ struct CodeBreaker {
         if let currentIndex = pegChoices.firstIndex(of: currentPeg) {
             let nextPeg = pegChoices[(currentIndex + 1) % pegChoices.count]
             guess.pegs[index] = nextPeg
+//            print(nextPeg.description)
         }
         else {
             guess.pegs[index] = pegChoices.first ?? Code.missing
@@ -60,15 +91,23 @@ struct CodeBreaker {
     
     mutating func restartGame() {
         let randomCount = Int.random(in: 3...6)
+        let nextGameMode = GameMode.random()
+        if nextGameMode == self.initMode {
+            self.pegChoices = self.initSet
+        } else {
+            self.pegChoices = nextGameMode == .emoji ? CodeBreaker.emojiSet : CodeBreaker.colorSet
+        }
+            
         self.masterCode = Code(kind: .master, count: randomCount)
-        self.masterCode.randomize(from: pegChoices, for: randomCount)
+        self.masterCode.randomize(from: self.pegChoices, for: randomCount)
         self.guess = Code(kind: .guess, count: randomCount)
         attempts = []
+        print("MasterCode:", masterCode)
     }
 }
 
 struct Code: Equatable {
-    var pegs: [Peg] = Array(repeating: Code.missing, count: 4)
+    var pegs: [Peg]
     var kind: Kind
     
     init(kind: Kind, count: Int) {
@@ -121,4 +160,29 @@ struct Code: Equatable {
     }
 }
 
-typealias Peg = Color
+enum Peg: Equatable {
+    case color(String)
+    case emoji(String)
+    case clear
+    
+    var description: String {
+        switch self {
+        case .color(let name): return name
+        case .emoji(let text): return text
+        case .clear: return "clear"
+        }
+    }
+}
+
+enum GameMode {
+    case color
+    case emoji
+    
+    static func random() -> GameMode {
+        if Bool.random() {
+            return .emoji
+        } else {
+            return .color
+        }
+    }
+}
